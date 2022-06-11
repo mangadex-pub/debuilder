@@ -24,9 +24,12 @@ RUN apt -qq update && \
       ca-certificates \
       cmake \
       curl \
+      debhelper \
       debian-archive-keyring \
+      devscripts \
       git \
       gnupg2 \
+      pkg-config \
       tar && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
