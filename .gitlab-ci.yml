@@ -1,16 +1,16 @@
 stages:
   - Build
 
-docker:build:
+variables: &default-variables
+  TZ: "UTC"
+  GIT_DEPTH: "1"
+
+.build: &build
   stage: Build
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
   needs: [ ]
-  variables:
-    TZ: "UTC"
-    GIT_DEPTH: "1"
-    DEBIAN_CODENAME: "buster"
   before_script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"gitlab-ci-token\",\"password\":\"$CI_JOB_TOKEN\"}}}" > /kaniko/.docker/config.json
@@ -27,18 +27,11 @@ docker:build:
     export IMAGE_TAG_ROLLING_COMMIT="git-$CI_COMMIT_SHORT_SHA"
     export IMAGE_TAG_ROLLING_GITREF="$CI_COMMIT_REF_SLUG"
 
-    export IMAGE_TAG_ROLLING_CODENAME="$DEBIAN_CODENAME"
-    if [ "$CI_COMMIT_REF_NAME" != "$CI_DEFAULT_BRANCH" ]; then
-      export IMAGE_TAG_ROLLING_CODENAME="branch-$CI_COMMIT_REF_SLUG-$IMAGE_TAG_ROLLING_CODENAME"
-      echo "Git reference $CI_COMMIT_REF_NAME is not the default branch. Rewriting git rolling tag as $IMAGE_TAG_ROLLING_CODENAME."
-    fi
-
     echo "***"
     echo "Will build and push image as:"
-    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_UNIQUE"
-    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_COMMIT"
-    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_GITREF"
-    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_CODENAME"
+    echo "- $CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_UNIQUE"
+    echo "- $CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_ROLLING_COMMIT"
+    echo "- $CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_ROLLING_GITREF"
     echo "***"
 
     (
@@ -49,8 +42,19 @@ docker:build:
         --dockerfile  Dockerfile \
         --build-arg   "DEBIAN_CODENAME=$DEBIAN_CODENAME" \
         --build-arg   "IMAGE_VERSION=$IMAGE_TAG_UNIQUE" \
-        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_UNIQUE" \
-        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_COMMIT" \
-        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_GITREF" \
-        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_CODENAME"
+        --destination "$CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_UNIQUE" \
+        --destination "$CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_ROLLING_COMMIT" \
+        --destination "$CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_ROLLING_GITREF"
     )
+
+buster:
+  <<: *build
+  variables:
+    <<: *default-variables
+    DEBIAN_CODENAME: "buster"
+
+bullseye:
+  <<: *build
+  variables:
+    <<: *default-variables
+    DEBIAN_CODENAME: "bullseye"
