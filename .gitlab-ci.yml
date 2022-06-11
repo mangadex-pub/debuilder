@@ -1,0 +1,56 @@
+stages:
+  - Build
+
+docker:build:
+  stage: Build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [ "" ]
+  needs: [ ]
+  variables:
+    TZ: "UTC"
+    GIT_DEPTH: "1"
+    DEBIAN_CODENAME: "buster"
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"gitlab-ci-token\",\"password\":\"$CI_JOB_TOKEN\"}}}" > /kaniko/.docker/config.json
+  script: |
+    set -eu
+
+    export JOB_TIMESTAMP="$(date -D '%Y-%m-%dT%H:%M:%S%Z' -d "$CI_JOB_STARTED_AT" +'%Y%m%d-%H%M')"
+    echo "Building image with"
+    echo "  -> debian codename: $DEBIAN_CODENAME"
+    echo "  -> git commit hash: $CI_COMMIT_SHORT_SHA"
+    echo "  -> build timestamp: $JOB_TIMESTAMP"
+
+    export IMAGE_TAG_UNIQUE="git-$CI_COMMIT_SHORT_SHA-build-$JOB_TIMESTAMP"
+    export IMAGE_TAG_ROLLING_COMMIT="git-$CI_COMMIT_SHORT_SHA"
+    export IMAGE_TAG_ROLLING_GITREF="$CI_COMMIT_REF_SLUG"
+
+    export IMAGE_TAG_ROLLING_CODENAME="$DEBIAN_CODENAME"
+    if [ "$CI_COMMIT_REF_NAME" != "$CI_DEFAULT_BRANCH" ]; then
+      export IMAGE_TAG_ROLLING_CODENAME="branch-$CI_COMMIT_REF_SLUG-$IMAGE_TAG_ROLLING_CODENAME"
+      echo "Git reference $CI_COMMIT_REF_NAME is not the default branch. Rewriting git rolling tag as $IMAGE_TAG_ROLLING_CODENAME."
+    fi
+
+    echo "***"
+    echo "Will build and push image as:"
+    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_UNIQUE"
+    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_COMMIT"
+    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_GITREF"
+    echo "- $CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_CODENAME"
+    echo "***"
+
+    (
+      set -x;
+      /kaniko/executor \
+        --single-snapshot \
+        --context     . \
+        --dockerfile  Dockerfile \
+        --build-arg   "DEBIAN_CODENAME=$DEBIAN_CODENAME" \
+        --build-arg   "IMAGE_VERSION=$IMAGE_TAG_UNIQUE" \
+        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_UNIQUE" \
+        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_COMMIT" \
+        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_GITREF" \
+        --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG_ROLLING_CODENAME"
+    )
