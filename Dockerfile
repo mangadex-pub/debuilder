@@ -45,15 +45,12 @@ RUN curl -Ss https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /u
     echo "deb [signed-by=/usr/share/keyrings/llvm-snapshots-archive-keyring.gpg] https://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" | tee /etc/apt/sources.list.d/llvm.list && \
     apt -qq update && \
     apt -qq -y full-upgrade && \
-    apt -qq -y --no-install-recommends install \
-      clang-14 \
-      clangd-14 \
-      libclang-common-14-dev \
-      libclang-14-dev \
-      libclang1-14
+    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14
 
 RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/clang-14   100 && \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 100
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 100 && \
+    cc --version && \
+    c++ --version
 
 # Clean image of temporary files
 # This works in our case because we use kaniko and single-snapshot, like civilised people.
