@@ -26,7 +26,10 @@ RUN apt -qq update && \
       gnupg2 && \
     sed -i -e 's/http\:/https\:/g' /etc/apt/sources.list && \
     apt -qq update && \
-    apt -qq -y full-upgrade
+    apt -qq -y full-upgrade && \
+    apt -qq -y --purge autoremove && \
+    apt -qq -y clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
 
 # Setup base build tools
 RUN apt -qq update && \
@@ -40,7 +43,10 @@ RUN apt -qq update && \
       devscripts \
       git \
       pkg-config \
-      tar
+      tar && \
+    apt -qq -y --purge autoremove && \
+    apt -qq -y clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
 
 # Setup more up to date build with Clang 14 & friends from the LLVM snapshots repository (bless them)
 RUN curl -Ss https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /usr/share/keyrings/llvm-snapshots-archive-keyring.gpg >/dev/null && \
@@ -48,20 +54,24 @@ RUN curl -Ss https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /u
     echo "deb [signed-by=/usr/share/keyrings/llvm-snapshots-archive-keyring.gpg] https://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" | tee /etc/apt/sources.list.d/llvm.list && \
     apt -qq update && \
     apt -qq -y full-upgrade && \
-    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14
+    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14 && \
+    apt -qq -y --purge autoremove && \
+    apt -qq -y clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
 
 RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/clang-14   100 && \
     update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 100 && \
     cc --version && \
     c++ --version
 
-# Clean image of temporary files
-# This works in our case because we use kaniko and single-snapshot, like civilised people.
-#
-# On that note, take a moment to appreciate how Docker's default choice of preserving layers was always one
-# of the stupidest ideas possible, and that babbling shit about CoW benefits of Docker layer reuse is stupid
-# as illustrated by the fact that it is as a result best-practice to cram all the RUN steps in a single
-# invocation, specifically because no one even remotely gives a rat's ass about layer reuse in the first place.
-RUN apt -qq -y --purge autoremove && \
+# Setup common library dependencies (ie most things will end up depending on it)
+RUN apt -qq update && \
+    apt -qq -y full-upgrade && \
+    apt -qq -y --no-install-recommends install \
+      libpcre2-dev \
+      libreadline-dev \
+      libsystemd-dev \
+      zlib1g-dev && \
+    apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
