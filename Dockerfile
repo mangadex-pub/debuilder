@@ -3,9 +3,12 @@ FROM docker.io/library/debian:${DEBIAN_CODENAME}-slim
 
 ARG DEBIAN_CODENAME
 ENV DEBIAN_CODENAME="${DEBIAN_CODENAME}"
+
+LABEL Name="DeBuilder"
 ARG IMAGE_VERSION
-LABEL version="debuilder-${IMAGE_VERSION}"
-LABEL maintainer="MangaDex open-source <opensource@mangadex.org>"
+LABEL Version="${IMAGE_VERSION}"
+LABEL Vendor="MangaDex"
+LABEL Maintainer="MangaDex open-source <opensource@mangadex.org>"
 
 ENV DEBIAN_FRONTEND "noninteractive"
 ENV TZ "UTC"
