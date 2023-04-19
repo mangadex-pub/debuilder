@@ -54,7 +54,7 @@ RUN curl -Ss https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /u
     echo "deb [signed-by=/usr/share/keyrings/llvm-snapshots-archive-keyring.gpg] https://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" | tee /etc/apt/sources.list.d/llvm.list && \
     apt -qq update && \
     apt -qq -y full-upgrade && \
-    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14 && \
+    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14 llvm-14 libclang-rt-14-dev && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
