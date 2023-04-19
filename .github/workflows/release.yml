@@ -18,9 +18,8 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - debian_codename: buster
-          - debian_codename: bullseye
+        clang_version: ["14", "16"]
+        debian_codename: ["buster", "bullseye"]
 
     steps:
       - name: Checkout repository
@@ -47,7 +46,8 @@ jobs:
           tags: |
             type=sha,event=push,enable=true,prefix=branch-{{ branch }}-${{ matrix.debian_codename }}-git-,format=short
             type=raw,event=push,enable={{ is_default_branch }},value={{ branch }}-${{ matrix.debian_codename }}
-            type=raw,event=push,enable={{ is_default_branch }},value=${{ matrix.debian_codename }}
+            type=sha,event=push,enable={{ is_default_branch }},prefix=${{ matrix.debian_codename }}-clang${{ matrix.clang_version }}-git-,format=short
+            type=raw,event=push,enable={{ is_default_branch }},value=${{ matrix.debian_codename }}-clang${{ matrix.clang_version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -58,3 +58,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             DEBIAN_CODENAME=${{ matrix.debian_codename }}
+            CLANG_VERSION=${{ matrix.clang_version }}
