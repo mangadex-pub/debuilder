@@ -48,19 +48,19 @@ RUN apt -qq update && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
 
-# Setup more up to date build with Clang 14 & friends from the LLVM snapshots repository (bless them)
+# Setup more up to date build with Clang 16 & friends from the LLVM snapshots repository (bless them)
 RUN curl -Ss https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | tee /usr/share/keyrings/llvm-snapshots-archive-keyring.gpg >/dev/null && \
     gpg --dry-run --quiet --import --import-options import-show /usr/share/keyrings/llvm-snapshots-archive-keyring.gpg | grep "6084F3CF814B57C1CF12EFD515CF4D18AF4F7421" && \
-    echo "deb [signed-by=/usr/share/keyrings/llvm-snapshots-archive-keyring.gpg] https://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-14 main" | tee /etc/apt/sources.list.d/llvm.list && \
+    echo "deb [signed-by=/usr/share/keyrings/llvm-snapshots-archive-keyring.gpg] https://apt.llvm.org/${DEBIAN_CODENAME}/ llvm-toolchain-${DEBIAN_CODENAME}-16 main" | tee /etc/apt/sources.list.d/llvm.list && \
     apt -qq update && \
     apt -qq -y full-upgrade && \
-    apt -qq -y --no-install-recommends install clang-14 lldb-14 lld-14 llvm-14 libclang-rt-14-dev && \
+    apt -qq -y --no-install-recommends install clang-16 lldb-16 lld-16 llvm-16 libclang-rt-16-dev && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
 
-RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/clang-14   100 && \
-    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-14 100 && \
+RUN update-alternatives --install /usr/bin/cc  cc  /usr/bin/clang-16   100 && \
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-16 100 && \
     cc --version && \
     c++ --version
 
