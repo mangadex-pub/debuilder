@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         clang_version: ["14", "16"]
-        debian_codename: ["buster", "bullseye"]
+        debian_codename: ["bullseye", "bookworm"]
 
     steps:
       - name: Checkout repository
