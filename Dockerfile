@@ -27,7 +27,6 @@ RUN apt -qq update && \
       curl \
       debian-archive-keyring \
       gnupg2 && \
-    sed -i -e 's/http\:/https\:/g' /etc/apt/sources.list && \
     apt -qq update && \
     apt -qq -y full-upgrade && \
     apt -qq -y --purge autoremove && \
