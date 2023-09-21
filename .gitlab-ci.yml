@@ -49,12 +49,6 @@ variables: &default-variables
         --destination "$CI_REGISTRY_IMAGE/$DEBIAN_CODENAME:$IMAGE_TAG_ROLLING_GITREF"
     )
 
-buster:
-  <<: *build
-  variables:
-    <<: *default-variables
-    DEBIAN_CODENAME: "buster"
-
 bullseye:
   <<: *build
   variables:
