@@ -60,3 +60,9 @@ bullseye:
   variables:
     <<: *default-variables
     DEBIAN_CODENAME: "bullseye"
+
+bookworm:
+  <<: *build
+  variables:
+    <<: *default-variables
+    DEBIAN_CODENAME: "bookworm"
