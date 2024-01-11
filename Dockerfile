@@ -44,6 +44,10 @@ RUN apt -qq update && \
       debhelper \
       devscripts \
       git \
+      libjemalloc-dev \
+      libpcre2-dev \
+      libreadline-dev \
+      libsystemd-dev \
       pkg-config \
       tar && \
     apt -qq -y --purge autoremove && \
