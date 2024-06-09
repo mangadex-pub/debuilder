@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        clang_version: ["16", "17"]
+        clang_version: ["17", "18"]
         debian_codename: ["bullseye", "bookworm"]
 
     steps:

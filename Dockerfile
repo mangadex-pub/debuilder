@@ -49,7 +49,8 @@ RUN apt -qq update && \
       libreadline-dev \
       libsystemd-dev \
       pkg-config \
-      tar && \
+      tar  \
+      zip unzip && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
