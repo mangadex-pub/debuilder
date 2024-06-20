@@ -43,13 +43,16 @@ RUN apt -qq update && \
       cmake \
       debhelper \
       devscripts \
+      gdb \
       git \
       libjemalloc-dev \
       libpcre2-dev \
       libreadline-dev \
       libsystemd-dev \
       pkg-config \
-      tar  \
+      tar \
+      vim \
+      wget \
       zip unzip && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
