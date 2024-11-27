@@ -1,14 +1,14 @@
-ARG DEBIAN_CODENAME
+ARG DEBIAN_CODENAME="bookworm"
 FROM docker.io/library/debian:${DEBIAN_CODENAME}-slim
 
-ARG DEBIAN_CODENAME
+ARG DEBIAN_CODENAME="bookworm"
 ENV DEBIAN_CODENAME="${DEBIAN_CODENAME}"
 
-ARG CLANG_VERSION
+ARG CLANG_VERSION="18"
 ENV CLANG_VERSION="${CLANG_VERSION}"
 
 LABEL Name="DeBuilder"
-ARG IMAGE_VERSION
+ARG IMAGE_VERSION="local-dirty"
 LABEL Version="${IMAGE_VERSION}"
 LABEL Vendor="MangaDex"
 LABEL Maintainer="MangaDex open-source <opensource@mangadex.org>"
@@ -91,3 +91,11 @@ RUN apt -qq update && \
     apt -qq -y --purge autoremove && \
     apt -qq -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/* /var/log/*
+
+# Ensure entrypoint has "proper" init process by default, simplifying test runs where processes can't handle being pid 1 due to signals
+# see: https://github.com/haproxy/haproxy/issues/2562
+ENV TINI_VERSION=v0.19.0
+ADD "https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini" /tini
+RUN chmod -v +x /tini
+
+ENTRYPOINT ["/tini", "--", "/bin/bash"]

@@ -4,6 +4,7 @@ on:
     tags: [ "*" ]
   schedule:
     - cron: "0 10 * * 1"
+  workflow_dispatch: { }
 
 env:
   REGISTRY: "ghcr.io"
@@ -18,8 +19,8 @@ jobs:
 
     strategy:
       matrix:
-        clang_version: ["17", "18"]
-        debian_codename: ["bullseye", "bookworm"]
+        clang_version: [ "17", "18" ]
+        debian_codename: [ "bullseye", "bookworm" ]
 
     steps:
       - name: Checkout repository
